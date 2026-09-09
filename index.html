@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Foreman Pythons | Wrong Answers Only</title>
+<title>Forman Pythons | Wrong Answers Only</title>
 <style>
   :root{
     --bg: #0d1117;
@@ -128,9 +128,9 @@
 
   <!-- START SCREEN -->
   <div id="start-screen" class="screen">
-    <div class="club-name">Foreman Pythons · CS Club</div>
-    <div class="club-sub">EVENT STALL EXPERIENCE</div>
-    <div class="logo-wrap"><span class="logo-snake">🐍</span></div>
+    <div class="club-name">Forman Pythons · CS Club</div>
+    <div class="club-sub"></div>
+    <div class="logo-wrap"><span class="logo-snake"></span></div>
     <h1 class="title">WRONG ANSWERS ONLY</h1>
     <p class="subtitle">An easy question pops up. You have <b>5 seconds</b> to answer it &mdash; but the answer must be funny and <b>wrong</b>. Right answers are not allowed!</p>
     <div class="rules-box">
@@ -140,8 +140,7 @@
       <div>🏆 Score builds up the longer you keep answering before time runs out.</div>
     </div>
     <button class="btn" id="start-btn">Start the Game 🚀</button>
-    <button class="btn btn-secondary" id="how-btn">How to run this at the stall</button>
-    <div class="footer-tag">made by Foreman Pythons</div>
+    <div class="footer-tag">made by Forman Pythons</div>
   </div>
 
   <!-- GAME SCREEN -->
@@ -174,7 +173,7 @@
 
   <!-- END SCREEN -->
   <div id="end-screen" class="screen hidden">
-    <div class="club-sub">Foreman Pythons presents</div>
+    <div class="club-sub">Forman Pythons presents</div>
     <h1 class="title" style="font-size:34px;">Game Over!</h1>
     <div class="score-label">Final Score</div>
     <div class="score-big" id="final-score">0</div>
@@ -187,7 +186,7 @@
 
 <script>
 /* =====================================================
-   FOREMAN PYTHONS — WRONG ANSWERS ONLY
+   Forman PYTHONS — WRONG ANSWERS ONLY
    Single-file event-stall trivia game
    ===================================================== */
 
@@ -355,7 +354,7 @@ function loadQuestion(){
   $("category-tag").textContent = cat;
   $("count-pill").textContent = "Q" + state.questionCount;
   $("score-pill").textContent = "Score: " + state.score;
-  $("player-pill").textContent = "🐍 Foreman Pythons";
+  $("player-pill").textContent = "🐍 Forman Pythons";
   state.onTimeover = false;
   showScreen(gameScreen);
   startTimer();
