@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Foreman Pythons | Students - Wrong Answers Only</title>
+<style>
+  :root{
+    --bg: #0d1117;
+    --bg2: #141c26;
+    --accent: #f4d13d;
+    --accent2: #3776ab;
+    --danger: #d92b2b;
+    --danger2: #8f0f0f;
+    --text: #f5f7fa;
+    --muted: #9aa7b5;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{
+    margin:0; height:100%; width:100%;
+    font-family:'Segoe UI', system-ui, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text);
+    overflow:hidden; user-select:none;
+  }
+  #app{ position:relative; height:100vh; width:100vw; }
+  .screen{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+  }
+  .hidden{ display:none !important; }
+
+  /* START SCREEN — deliberately minimal: logo + one button, nothing else */
+  #start-screen{ background:radial-gradient(circle at 50% 30%, var(--bg2), var(--bg) 75%); z-index:1;}
+  .logo-snake{ font-size:56px; line-height:1; margin-bottom:8px; }
+  .club-name{ font-size:14px; letter-spacing:3px; color:var(--accent); font-weight:700; text-transform:uppercase; margin-bottom:2px;}
+  .club-sub{ font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:34px;}
+  h1.title{
+    font-size:clamp(28px,6vw,46px); margin:0 0 40px 0; font-weight:800;
+    background:linear-gradient(90deg,var(--accent),#fff5,var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .btn{
+    border:none; cursor:pointer; font-weight:700; letter-spacing:.5px;
+    border-radius:50px; padding:18px 48px; font-size:20px;
+    background:linear-gradient(90deg,var(--accent),#ffffffcc);
+    color:#111; box-shadow:0 8px 24px #f4d13d55;
+    transition:transform .15s ease;
+  }
+  .btn:active{ transform:scale(.95); }
+
+  /* GAME SCREEN */
+  #game-screen{
+    background:linear-gradient(160deg,var(--bg2),var(--bg));
+    cursor:pointer; z-index:1;
+  }
+  .top-bar{
+    position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between;
+    align-items:center; padding:16px 22px; font-size:13px; color:var(--muted);
+  }
+  .pill{ background:#ffffff12; padding:6px 14px; border-radius:20px; }
+  .speaker-btn{
+    background:#ffffff12; border:none; color:var(--text); font-size:16px;
+    padding:6px 12px; border-radius:20px; cursor:pointer;
+  }
+  .question-text{
+    font-size:clamp(26px,4.8vw,44px); font-weight:700; line-height:1.35;
+    max-width:820px; padding:0 10px;
+  }
+  .hint-text{ margin-top:26px; font-size:13px; color:var(--muted); letter-spacing:.5px;}
+  .timer-wrap{ position:absolute; bottom:60px; left:50%; transform:translateX(-50%); }
+  #timer-ring{ transform:rotate(-90deg); }
+  #timer-ring circle.bg{ stroke:#ffffff1a; }
+  #timer-ring circle.fg{ stroke:var(--accent); stroke-linecap:round; transition:stroke .2s;}
+  .timer-num{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:26px; font-weight:800;
+  }
+
+  /* TIME OVER SCREEN */
+  #timeover-screen{
+    background:radial-gradient(circle at 50% 40%, var(--danger2), #4a0808 80%);
+    z-index:2;
+  }
+  .big-x{ font-size:90px; margin-bottom:6px; }
+  .timeover-title{
+    font-size:clamp(32px,7.5vw,60px); font-weight:900; color:#fff; letter-spacing:1px;
+    text-shadow:0 4px 20px #000a;
+  }
+  .timeover-sub{ font-size:15px; color:#ffd3d3; margin-top:10px;}
+  @keyframes pulseRed{ 0%,100%{background-color:#8f0f0f;} 50%{background-color:#d92b2b;} }
+  #timeover-screen.flash{ animation:pulseRed .5s ease-in-out 2; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- START SCREEN: logo + ONE button. Nothing else. -->
+  <div id="start-screen" class="screen">
+    <div class="club-name">Foreman Pythons · CS Club</div>
+    <div class="club-sub">STUDENTS EDITION</div>
+    <div class="logo-snake">🎒</div>
+    <h1 class="title">WRONG ANSWERS ONLY</h1>
+    <button class="btn" id="start-btn">Start the Game</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen hidden">
+    <div class="top-bar">
+      <span class="pill">🐍 Foreman Pythons</span>
+      <button class="speaker-btn" id="mute-btn">🔊</button>
+    </div>
+    <div class="question-text" id="question-text">Loading question...</div>
+    <div class="hint-text">Tap anywhere once answered wrong 👉 next question</div>
+    <div class="timer-wrap">
+      <svg id="timer-ring" width="90" height="90">
+        <circle class="bg" cx="45" cy="45" r="38" stroke-width="7" fill="none"/>
+        <circle class="fg" cx="45" cy="45" r="38" stroke-width="7" fill="none"
+                stroke-dasharray="238.76" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-num" id="timer-num">5</div>
+    </div>
+  </div>
+
+  <!-- TIME OVER SCREEN -->
+  <div id="timeover-screen" class="screen hidden">
+    <div class="big-x">⏰</div>
+    <div class="timeover-title">YOUR TIME IS OVER</div>
+    <div class="timeover-sub">Too slow to be wrong! Tap to continue.</div>
+  </div>
+
+</div>
+
+<script>
+/* Foreman Pythons — Wrong Answers Only — Students edition */
+
+const QUESTIONS = ["What is the color of the sky? 🌤️", "How many legs does a cat have? 🐱", "What do we use to write on a whiteboard? ✍️", "What is 2 + 2? ➕", "Which animal says “Meow”? 🐱", "What do we use to brush our teeth? 🪥", "Where do fish live? 🐟", "What do you drink when you are thirsty? 🥤", "What does a computer use to store information? 💻", "What is the opposite of hot?"];
+
+const TIMER_SECONDS = 5;
+const RADIUS = 38;
+const CIRC = 2 * Math.PI * RADIUS;
+
+let state = {
+  pool: [],
+  used: new Set(),
+  timerInterval: null,
+  timeLeft: TIMER_SECONDS,
+  muted: false
+};
+
+const $ = id => document.getElementById(id);
+const startScreen = $("start-screen");
+const gameScreen = $("game-screen");
+const timeoverScreen = $("timeover-screen");
+
+function showScreen(el){
+  [startScreen, gameScreen, timeoverScreen].forEach(s => s.classList.add("hidden"));
+  el.classList.remove("hidden");
+}
+
+function buildPool(){
+  let pool = QUESTIONS.slice();
+  for(let i = pool.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  state.pool = pool;
+  state.used = new Set();
+}
+
+function nextQuestion(){
+  if(state.used.size >= state.pool.length){
+    buildPool();
+  }
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * state.pool.length);
+  } while(state.used.has(idx) && state.used.size < state.pool.length);
+  state.used.add(idx);
+  return state.pool[idx];
+}
+
+/* ---------- Text-to-speech ---------- */
+let voices = [];
+function loadVoices(){
+  voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+}
+if("speechSynthesis" in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window) || state.muted) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "").trim();
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = "en-US";
+  utter.rate = 0.82;
+  utter.pitch = 1;
+  utter.volume = 1;
+  const preferred = voices.find(v => /en-US|en_US|English/i.test(v.lang + " " + v.name) && /female|zira|susan|samantha/i.test(v.name))
+                  || voices.find(v => v.lang === "en-US")
+                  || voices.find(v => /^en/i.test(v.lang));
+  if(preferred) utter.voice = preferred;
+  window.speechSynthesis.speak(utter);
+}
+
+$("mute-btn").onclick = (e) => {
+  e.stopPropagation();
+  state.muted = !state.muted;
+  $("mute-btn").textContent = state.muted ? "🔇" : "🔊";
+  if(state.muted && "speechSynthesis" in window) window.speechSynthesis.cancel();
+};
+
+/* ---------- Timer ---------- */
+const fgCircle = document.querySelector("#timer-ring circle.fg");
+fgCircle.setAttribute("stroke-dasharray", CIRC);
+
+function startTimer(){
+  clearInterval(state.timerInterval);
+  state.timeLeft = TIMER_SECONDS;
+  updateTimerVisual();
+  state.timerInterval = setInterval(() => {
+    state.timeLeft -= 0.1;
+    if(state.timeLeft <= 0){
+      state.timeLeft = 0;
+      updateTimerVisual();
+      clearInterval(state.timerInterval);
+      triggerTimeOver();
+      return;
+    }
+    updateTimerVisual();
+  }, 100);
+}
+
+function updateTimerVisual(){
+  const pct = state.timeLeft / TIMER_SECONDS;
+  fgCircle.setAttribute("stroke-dashoffset", CIRC * (1 - pct));
+  $("timer-num").textContent = Math.ceil(state.timeLeft);
+  fgCircle.style.stroke = state.timeLeft <= 2 ? "var(--danger)" : "var(--accent)";
+}
+
+function triggerTimeOver(){
+  if("speechSynthesis" in window) window.speechSynthesis.cancel();
+  timeoverScreen.classList.add("flash");
+  showScreen(timeoverScreen);
+  setTimeout(() => timeoverScreen.classList.remove("flash"), 1000);
+}
+
+/* ---------- Game flow ---------- */
+function loadQuestion(){
+  const q = nextQuestion();
+  $("question-text").textContent = q;
+  showScreen(gameScreen);
+  startTimer();
+  speak(q);
+}
+
+function handleGameTap(){
+  clearInterval(state.timerInterval);
+  loadQuestion();
+}
+function handleTimeoverTap(){
+  loadQuestion();
+}
+
+gameScreen.addEventListener("click", handleGameTap);
+timeoverScreen.addEventListener("click", handleTimeoverTap);
+
+$("start-btn").onclick = () => {
+  buildPool();
+  loadQuestion();
+};
+
+/* secret host shortcut: double-tap top-left corner to return home */
+let cornerTaps = 0;
+document.addEventListener("click", (e) => {
+  if(e.clientX < 40 && e.clientY < 40 && !gameScreen.classList.contains("hidden")){
+    cornerTaps++;
+    if(cornerTaps >= 2){
+      cornerTaps = 0;
+      clearInterval(state.timerInterval);
+      if("speechSynthesis" in window) window.speechSynthesis.cancel();
+      showScreen(startScreen);
+    }
+  }
+}, true);
+</script>
+</body>
+</html>
